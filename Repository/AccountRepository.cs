@@ -212,6 +212,10 @@ namespace Susteni.Repository
 
             string result = await SusteniExecuteJson("Account", "GetUserInfo", json, "");
 
+            Console.WriteLine("🧾 JSON bruto recebido:");
+            Console.WriteLine(result);
+
+
             AccountSignedInItem itemWS = JsonConvert.DeserializeObject<Models.AccountSignedInItem>(result);
 
             return itemWS;

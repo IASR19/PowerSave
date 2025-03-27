@@ -190,7 +190,22 @@
                                         </div>
                                     </div>
 
-                                    <div class="row align-items-center" style="margin-top: 7px;">
+                                    <div class="row align-items-center">
+                                        <label class="col-5 col-form-label">Shutdown priority</label>
+                                        <div class="col-2">
+                                            @(Html.Kendo().NumericTextBox<int>()
+                                                .Name("ShipGenerator.ShutdownPriority")
+                                                .Format("n0")
+                                                .Min(1)
+                                                .HtmlAttributes(new { @class = "nodvendigFelt" })
+                                                .Value(Model.ShipGenerator.ShutdownPriority ?? 1)
+                                            )
+                                        </div>
+                                    </div>
+
+
+
+
                                         <label class="col-5 col-form-label"></label>
                                         <div class="col-3">
                                             @(Html.Kendo().CheckBox().Checked(Model.ShipGenerator.PowerProduction).Name("ShipGenerator.PowerProduction").Label("Power production"))

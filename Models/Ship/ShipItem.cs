@@ -145,6 +145,9 @@ namespace Susteni.Models
         public string ShipGuid { get; set; } = "";
         public string Name { get; set; } = "";
         public int Order { get; set; } = 0;
+
+        public int? ShutdownPriority { get; set; } = 0;
+        
         public string TypeGuid { get; set; } = "";
         public string FuelTypeGuid { get; set; } = "";
         public int kW { get; set; } = 0;

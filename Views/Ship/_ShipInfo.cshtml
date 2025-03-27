@@ -8,13 +8,46 @@
 
     .k-fab-text {
         display: none;
-        }
+    }
 
 
     #editor table, th {
         margin-left: 0px;
         margin-top: 0px;
+    }
+
+    #fuelPricesContainer {
+        background-color: #f8f9fa;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 13px;
+        width: 100%;
+        min-width: 160px;
+        right: 60px;
+        top: 50px;
         }
+
+    #fuelPricesContainer table {
+        width: 100%;
+    }
+
+    #fuelPricesContainer input[type="number"] {
+        width: 100%;
+        font-size: 13px;
+        padding: 3px 6px;
+    }
+
+    .fuel-price-input {
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    width: 100%;
+    }
+
+
+
 
 </style>
 
@@ -27,13 +60,13 @@
         var selected = grid.select();
 
         if (selected.length === 0) {
-            alert("Nenhum gerador selecionado para duplicação.");
+            alert("No generator selected for duplication.");
             return;
         }
 
         var dataItem = grid.dataItem(selected);
         if (!dataItem) {
-            alert("Erro ao obter os dados do gerador selecionado.");
+            alert("Error retrieving selected generator data.");
             return;
         }
 
@@ -99,8 +132,8 @@
 
     function saveGenerators(generators) {
         if (!Array.isArray(generators) || generators.length === 0) {
-            console.warn("⚠️ Nenhum gerador fornecido para salvar.");
-            alert("Nenhum gerador foi preparado para salvar.");
+            console.warn("⚠️ No generator provided to save.");
+            alert("No generator was prepared to be saved.");
             return;
         }
 
@@ -110,25 +143,25 @@
             contentType: "application/json",
             data: JSON.stringify(generators),
             success: function (response) {
-                console.log("✅ Geradores salvos com sucesso:", response);
+                console.log("✅ Generators saved successfully:", response);
 
                 // Recarrega o grid, se existir
                 const grid = $("#shipGeneratorList").data("kendoGrid");
                 if (grid) {
                     grid.dataSource.read().then(function () {
                         grid.refresh();
-                        console.log("🔁 Grid recarregado após salvar o gerador.");
+                        console.log("🔁 Grid reloaded after saving the generator.");
                     });
                 }
 
-                alert("Gerador salvo com sucesso!");
+                alert("Generator saved successfully!");
             },
             error: function (xhr) {
-                console.error("❌ Erro ao salvar geradores:", xhr);
-                let message = "Falha ao salvar gerador.";
+                console.error("❌ Error saving generators:", xhr);
+                let message = "Failed to save generator.";
 
                 if (xhr.responseJSON && xhr.responseJSON.details)
-                    message += "\nDetalhes: " + xhr.responseJSON.details;
+                    message += "\nDetails: " + xhr.responseJSON.details;
 
                 alert(message);
             }
@@ -145,14 +178,14 @@
             var selected = grid.select();
 
             if (selected.length === 0) {
-                alert("Nenhum perfil selecionado para duplicação.");
+                alert("No profile selected for duplication.");
                 return;
             }
 
             var dataItem = grid.dataItem(selected);
             
             if (!dataItem) {
-                alert("Erro ao obter os dados do perfil selecionado.");
+                alert("Error retrieving selected profile data.");
                 return;
             }
 
@@ -164,7 +197,7 @@
             grid.dataSource.add(newProfile);
             grid.refresh();
 
-            console.log("Novo perfil duplicado:", newProfile);
+            console.log("New duplicated profile:", newProfile);
         }
 
 // Tornar a função acessível globalmente
@@ -176,7 +209,7 @@
     var selected = grid.select();
 
     if (selected.length === 0) {
-        alert("Nenhum gerador selecionado para remoção.");
+        alert("No generator selected for removal.");
         return;
     }
 
@@ -198,15 +231,15 @@
                     }
                 }),
                 success: function (response) {
-                    console.log("Gerador removido com sucesso:", dataItem.GeneratorGuid);
+                    console.log("Generator successfully removed:", dataItem.GeneratorGuid);
 
                     // Agora sim remove do grid depois do sucesso no backend
                     grid.dataSource.remove(dataItem);
                     grid.refresh();
                 },
                 error: function (err) {
-                    console.error("Erro ao excluir gerador:", err);
-                    alert("Erro ao excluir o gerador no banco de dados.");
+                    console.error("Error deleting generator:", err);
+                    alert("Error deleting the generator from the database.");
                 }
             });
         }
@@ -384,14 +417,62 @@
                                             </div>
                                         </div>
 
+
                                         <div class="col-4">
-                                            <div id="filPreview">
-                                                @if (Model.Ship.byte64Picture.Length > 0)
-                                                {
-                                                    <img src="data:image/Jpeg;base64,@Model.Ship.byte64Picture" style="max-width: 100%; max-height: 490px;" />
-                                                }
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div id="fuelPricesContainer" class="k-card" style="display: block;">
+                                                        <h6 style="font-weight: bold; font-size: 13px; color: #a6c5f7; margin-bottom: 10px;">Fuel Prices</h6>
+
+                                                        <div class="row mb-2">
+                                                            <div class="col-6">
+                                                                <select id="fuelTypeSelector" class="form-select form-select-sm" style="font-size: 13px;">
+                                                                    <option value="">Select fuel type...</option>
+                                                                    <option value="MGO">MGO</option>
+                                                                    <option value="HFO">HFO</option>
+                                                                    <option value="LNG">LNG</option>
+                                                                    <option value="BIO">BIO</option>
+                                                                    <!-- Adicione mais opções conforme necessário -->
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-4">
+                                                                <input type="number" id="fuelPriceInput" class="form-control form-control-sm" placeholder="Price" step="0.01" />
+                                                            </div>
+                                                            <div class="col-2">
+                                                                <button id="addFuelPriceBtn" type="button" class="btn btn-sm btn-primary w-100"
+                                                                    style="height: 30px; font-size: 13px; display: flex; align-items: center; justify-content: center; background-color: #a6c5f7;">
+                                                                    Add
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <table class="table table-sm" style="font-size: 13px;">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style="width: 60%">Fuel Type</th>
+                                                                    <th style="width: 40%">Price</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="fuelPricesTable">
+                                                                <!-- Conteúdo JS -->
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+
+                                                    
+                                                </div>
+                                                <div class="col-6 d-flex align-items-center justify-content-center">
+                                                    <div id="filPreview">
+                                                        @if (Model.Ship.byte64Picture.Length > 0)
+                                                        {
+                                                            <img src="data:image/Jpeg;base64,@Model.Ship.byte64Picture" style="max-width: 100%; max-height: 300px;" />
+                                                        }
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
+
 
 
                                     </div>
@@ -676,8 +757,6 @@
                                                         .Icon("copy")
                                                         .Events(events => events.Click("duplicateSelectedGenerator"))
                                                         .Visible(false) // Inicialmente oculto, mas será ativado pelo script
-                                                    )
-
                                                     )
                                                 </div>
 
@@ -966,7 +1045,7 @@
         if (typeof showDialogGeneratorsEdit === "function") {
             showDialogGeneratorsEdit();
         } else {
-            console.error("Erro: função showDialogGeneratorsEdit não definida!");
+            console.error("Error: function showDialogGeneratorsEdit is not defined!");
         }
     });
 
@@ -976,8 +1055,10 @@
         $("#shipGeneratorList").data("kendoGrid").bind("dataBound", function () {
             var grid = $("#shipGeneratorList").data("kendoGrid");
             var totalRows = grid.dataSource.total();
+            renderFuelPriceTable(); 
 
-            console.log("Total de geradores encontrados:",
+
+            console.log("Total generators found:",
             
              totalRows);
 
@@ -985,16 +1066,16 @@
                 var duplicateButton = $("#duplicateGenerator").data("kendoFloatingActionButton");
 
                 if (!duplicateButton) {
-                    console.log("Botão de duplicação não encontrado, tentando inicializar...");
+                    console.log("Duplicate button not found, trying to initialize...");
                     $("#duplicateGenerator").kendoFloatingActionButton(); // Inicializa o botão se ainda não estiver ativo
                     duplicateButton = $("#duplicateGenerator").data("kendoFloatingActionButton");
                 }
 
                 if (duplicateButton) {
                     duplicateButton.show();
-                    console.log("Botão de duplicação ativado!");
+                    console.log("Duplicate button activated!");
                 } else {
-                    console.log("Erro: botão de duplicação ainda não encontrado!");
+                    console.log("Error: duplicate button still not found!");
                 }
             }
         });
@@ -1003,11 +1084,110 @@
 
     $(document).ready(function () {
         if ($("#duplicateGenerator").length) {
-            console.log("Botão de duplicação encontrado.");
+            console.log("Duplicate button found.");
         } else {
-            console.log("Botão de duplicação NÃO encontrado!");
+            console.log("Duplicate button NOT found!");
         }
     });
+
+
+    function renderFuelPriceTable() {
+        const grid = $("#shipGeneratorList").data("kendoGrid");
+        if (!grid) return;
+
+        const data = grid.dataSource.data();
+
+        if (data.length === 0) {
+            $("#fuelPricesContainer").hide();
+            return;
+        }
+
+        const grouped = {};
+        data.forEach(item => {
+            const guid = item.FuelTypeGuid || "Unknown";
+            if (!grouped[guid]) {
+                grouped[guid] = {
+                    FuelTypeGuid: guid,
+                    FuelTypeName: item.FuelTypeName || "Unknown",
+                    Price: item.FuelPrice || 0
+                };
+            }
+        });
+
+        let html = "";
+        Object.values(grouped).forEach(group => {
+            html += `
+                <tr>
+                    <td>${group.FuelTypeName}</td>
+                    <td>
+                        <input type="number" step="0.01" class="form-control form-control-sm fuel-price-input"
+                            data-guid="${group.FuelTypeGuid}" value="${group.Price}" />
+                    </td>
+                </tr>`;
+        });
+
+        $("#fuelPricesTable").html(html);
+        $("#fuelPricesContainer").show();
+    }
+
+
+    var addedFuelPrices = window.addedFuelPrices || [];
+
+
+    function addFuelPriceRow() {
+        const fuelType = $("#fuelTypeSelector").val();
+        const price = parseFloat($("#fuelPriceInput").val());
+
+        if (!fuelType) {
+            alert("Select a fuel type.");
+            return;
+        }
+
+        if (isNaN(price)) {
+            alert("Enter a valid price.");
+            return;
+        }
+
+        // Evita duplicidade
+        const existing = addedFuelPrices.find(item => item.FuelType === fuelType);
+        if (existing) {
+            existing.Price = price;
+        } else {
+            addedFuelPrices.push({ FuelType: fuelType, Price: price });
+        }
+
+        renderManualFuelPriceTable();
+        $("#fuelPriceInput").val("");
+        $("#fuelTypeSelector").val("");
+    }
+
+    function renderManualFuelPriceTable() {
+        const tbody = $("#fuelPricesTable");
+        tbody.empty();
+
+        addedFuelPrices.forEach(item => {
+            tbody.append(`
+                <tr>
+                    <td>${item.FuelType}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm fuel-price-input" 
+                            data-type="${item.FuelType}" value="${item.Price}" step="0.01"
+                            onchange="updateFuelPrice('${item.FuelType}', this.value)" />
+                    </td>
+                </tr>
+            `);
+        });
+    }
+
+    function updateFuelPrice(type, newPrice) {
+        const item = addedFuelPrices.find(f => f.FuelType === type);
+        if (item) {
+            item.Price = parseFloat(newPrice);
+        }
+    }
+
+    $("#addFuelPriceBtn").on("click", addFuelPriceRow);
+
 
 
 
