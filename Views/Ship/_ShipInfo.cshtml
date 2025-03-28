@@ -1092,7 +1092,7 @@
 
 
     function renderFuelPriceTable() {
-        const grid = $("#shipGeneratorList").data("kendoGrid");
+        grid = $("#shipGeneratorList").data("kendoGrid"); 
         if (!grid) return;
 
         const data = grid.dataSource.data();
@@ -1187,6 +1187,19 @@
     }
 
     $("#addFuelPriceBtn").on("click", addFuelPriceRow);
+
+
+
+    if (grid) {
+        const data = grid.dataSource.data();
+        data.forEach(item => {
+            if (item.FuelTypeGuid === type) {
+                item.FuelPrice = parseFloat(newPrice);
+            }
+        });
+        grid.refresh();
+    }
+
 
 
 
