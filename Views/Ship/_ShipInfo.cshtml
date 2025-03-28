@@ -456,7 +456,13 @@
                                                             <tbody id="fuelPricesTable">
                                                                 <!-- Conteúdo JS -->
                                                             </tbody>
-                                                        </table>
+                                                        </table>          
+                                                        <div class="text-end mt-2">
+                                                            <button onclick="saveFuelPricesToBackend('@Model.Ship.ShipGuid')" 
+                                                                    class="btn btn-success btn-sm">
+                                                                💾 Salvar Preços de Combustível
+                                                            </button>
+                                                        </div>
                                                     </div>
 
                                                     
@@ -1090,9 +1096,8 @@
         }
     });
 
-
     function renderFuelPriceTable() {
-        grid = $("#shipGeneratorList").data("kendoGrid"); 
+        var grid = $("#shipGeneratorList").data("kendoGrid");
         if (!grid) return;
 
         const data = grid.dataSource.data();
@@ -1102,7 +1107,8 @@
             return;
         }
 
-        const grouped = {};
+        const grouped = {}; // <- agora sim, primeiro define
+
         data.forEach(item => {
             const guid = item.FuelTypeGuid || "Unknown";
             if (!grouped[guid]) {
@@ -1130,6 +1136,7 @@
         $("#fuelPricesContainer").show();
     }
 
+    
 
     var addedFuelPrices = window.addedFuelPrices || [];
 
@@ -1189,16 +1196,46 @@
     $("#addFuelPriceBtn").on("click", addFuelPriceRow);
 
 
+    function saveFuelPricesToBackend(shipGuid) {
+        const prices = addedFuelPrices.map(item => ({
+            ShipGuid: shipGuid,
+            FuelType: item.FuelType, // deve bater com o que o banco entende
+            Price: parseFloat(item.Price)
+        }));
 
-    if (grid) {
-        const data = grid.dataSource.data();
-        data.forEach(item => {
-            if (item.FuelTypeGuid === type) {
-                item.FuelPrice = parseFloat(newPrice);
+        const payload = {
+            logonInfo: {
+                Server: "localhost\\SQLEXPRESS",
+                Database: "Susteni",
+                UserId: "support",
+                Password: "Morten09gutt",
+                Parameters: {
+                    field: "FuelType",
+                    order: "asc",
+                    filter: "ShipGuid = '" + shipGuid + "'",
+                    fieldValue: shipGuid
+                }
+            },
+            Data: prices
+        };
+
+
+
+        $.ajax({
+            url: "http://localhost:5210/Ship/SaveFuelPrices",
+            method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function () {
+                alert("⛽ Preços de combustível salvos com sucesso!");
+            },
+            error: function (err) {
+                console.error("❌ Erro ao salvar preços de combustível:", err);
+                alert("Erro ao salvar os preços.");
             }
         });
-        grid.refresh();
     }
+
 
 
 
